@@ -1,16 +1,45 @@
-// More info: https://containers.dev/implementors/json_reference/
 {
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"mads-hartmann.bash-ide-vscode",
-				"dbaeumer.vscode-eslint"
-			]
-		}
-	},
-	"postCreateCommand": "npm install -g @devcontainers/cli"
+  "name": "Model evals",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "forwardPorts": [8888, 8501],
+  "customizations": {
+      "vscode": {
+          "extensions": [
+              "ms-python.python",
+              "amazonwebservices.aws-toolkit-vscode",
+              "ms-toolsai.jupyter",
+              "GitHub.copilot",
+              "GitHub.copilot-chat"
+          ]
+      }
+  },
+  "features": {
+      "ghcr.io/bdsoha/devcontainers/custom-root-ca:1": {
+        "source": "https://developers.cloudflare.com/cloudflare-one/static/Cloudflare_CA.pem",
+        "verify": "false"
+      },
+      "ghcr.io/devcontainers/features/aws-cli:1": {
+          "version": "2.7.13"
+      },
+      "terraform": {
+          "version": "latest",
+          "tflint": "latest",
+          "terragrunt": "latest"
+      }
+  },
+  "mounts": [
+      "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/pcanham/.aws,type=bind,consistency=consistent",
+      "source=./Cloudflare_CA.pem,target=/etc/ssl/certs/Cloudflare_CA.pem,type=bind",
+  ],
+  "runArgs": [
+      "--network", "host",
+      "--env-file", ".devcontainer/devcontainer.env"
+  ],
+  "containerEnv": {
+      "AWS_CA_BUNDLE": "/etc/ssl/certs/Cloudflare_CA.pem",
+      "REQUESTS_CA_BUNDLE": "/etc/ssl/certs/Cloudflare_CA.pem",
+      "CA_BUNDLE": "/etc/ssl/certs/Cloudflare_CA.pem",
+      "NODE_EXTRA_CA_CERTS": "/etc/ssl/certs/Cloudflare_CA.pem"
+  },
+  "postStartCommand": "sudo bash ./scripts/post_setup.sh"
 }
